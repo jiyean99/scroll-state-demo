@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>scroll-state() Demo 순서 변경</title>
+  <style>
+
+    @import "https://unpkg.com/open-props" layer(design.system);
+
+    @layer base {
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: system-ui, sans-serif;
+        background-color: transparent;
+        line-height: 1.5;
+      }
+    }
+
+    @layer header {
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        z-index: 999;
+      }
+      button {
+        padding: 0.4rem 1rem;
+        border: 1px solid #007BFF;
+        background: white;
+        color: #007BFF;
+        font-weight: bold;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+
+      button.active {
+        background: #007BFF;
+        color: white;
+      }
+    }
+
+    @layer demo {
+      .demo {
+        display: none;
+        .content {
+          display: flex;
+          flex-direction: column;
+          gap: 10vh;
+          .section {
+            padding: 2rem;
+            text-align: center;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: dimgrey;
+            height: 600px;
+            white-space: nowrap;
+          }
+        }
+        &.active {
+          display: block;
+        }
+        &.snapped {
+          transform: translateY(20dvh);
+          .content {
+            flex-direction: row;
+            gap: 0;
+            margin-inline: 40vw 220vw;
+          }
+        }
+      }
+    }
+
+    @layer demo.stuck {
+      .demo.stuck {
+        .sticky {
+          position: sticky;
+          top: 55px;
+          container-type: scroll-state;
+          > p {
+            text-align: center;
+            padding: 1.5rem;
+            margin: 0 3rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 10;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            background: #eee;
+            color: #141414;
+            transition: all .3s;
+            @container scroll-state(stuck: top) {
+              background: #007BFF;
+              color: #fff;
+            }
+          }
+        }
+      }
+    }
+
+    @layer demo.snapped {
+      .demo.snapped {
+        overflow: auto hidden;
+        scroll-snap-type: x mandatory;
+        .content {
+          container-type: scroll-state;
+          > * {
+            min-width: 800px;
+            scroll-snap-align: center;
+            color: #007BFF;
+            transition: opacity .5s ease;
+            container-type: scroll-state;
+            @container not scroll-state(snapped: x) {
+              color: #141414;
+              opacity: 0.25;
+            }
+            @container scroll-state(snapped: x) {
+              color: #007BFF;
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+
+    @layer demo.scrollable {
+      .demo.scrollable {
+        container-type: scroll-state;
+        overflow-y: auto;
+        max-block-size: 100vh;
+        position: relative;
+        .scrollable-marker {
+          place-self: end;
+          position: sticky;
+          inset-block-end: 10px;
+          inset-block-start: 10px;
+          inline-size: 100%;
+          text-align: center;
+          transition: translate .2s ease;
+          @container scroll-state((scrollable: top) or (not (scrollable: bottom))) {
+            translate: 0 calc(100% + 10px);
+          }
+          @container scroll-state((scrollable: top) and (not (scrollable: bottom))) {
+            translate: 0 calc(100% + 10px);
+            rotate: .5turn;
+          }
+          svg {
+            inline-size: 48px;
+            block-size: 48px;
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: #eee;
+            color: #007BFF;
+            padding: 8px;
+          }
+        }
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <button class="active" data-target="stuck">Stuck</button>
+  <button data-target="snapped">Snapped</button>
+  <button data-target="scrollable">Scrollable</button>
+</header>
+
+<main>
+  <!-- Stuck Demo -->
+  <div class="demo stuck active" id="stuck">
+    <div class="content">
+      <div class="section" style="color: #141414">Sticky State Queries : Stuck</div>
+    </div>
+
+    <div class="sticky">
+      <p>I'm sticky! (position: sticky; top: 55px;)</p>
+    </div>
+
+    <div class="content">
+      <div class="section">Scroll down ⬇️</div>
+      <div class="section">Keep scrolling ⬇️</div>
+      <div class="section">Almost there ⬇️</div>
+      <div class="section">Done ✅</div>
+    </div>
+  </div>
+
+  <div class="demo snapped" id="snapped">
+    <div class="content">
+      <div class="section" >Sticky State Queries : Snapped<br/>Scroll right ➡️</div>
+      <div class="section">Keep scrolling ➡️</div>
+      <div class="section">Almost there ➡️</div>
+      <div class="section">Done ✅</div>
+    </div>
+  </div>
+
+  <div class="demo scrollable" id="scrollable">
+    <div class="content">
+      <div class="section" style="color: #141414">Sticky State Queries : Scrollable</div>
+      <div class="section">Scroll down ⬇️</div>
+      <div class="section">Keep scrolling ⬇️</div>
+      <div class="section">Almost there ⬇️</div>
+      <div class="section">Done ✅</div>
+    </div>
+    <div class="scrollable-marker">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 16.5l-8-8h16l-8 8z"/>
+      </svg>
+    </div>
+  </div>
+</main>
+
+<script>
+  <!-- 헤더 토글버튼 스크립트  -->
+  const buttons = document.querySelectorAll("header button");
+  const demos = document.querySelectorAll(".demo");
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const target = btn.dataset.target;
+      demos.forEach(d => {
+        d.classList.toggle("active", d.id === target);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
